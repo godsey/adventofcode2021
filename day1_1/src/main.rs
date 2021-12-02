@@ -12,8 +12,8 @@ fn main() {
 
 
 fn scanner_increases(filename: &str) -> i32 {
-    let mut previous_depth: i32 = 0;
-    let mut descending_counter: i32 = -1;
+    let mut previous_depth: Option<i32> = None;
+    let mut descending_counter: i32 = 0;
 
     if let Ok(lines) = read_lines(filename) {
         // Consumes the iterator, returns an (Optional) String
@@ -22,16 +22,17 @@ fn scanner_increases(filename: &str) -> i32 {
                 // line has been read
                 if let Ok(depth) = depth_str.trim().parse() {
                     // line has been parsed to i32
-                    if descending_counter == -1 {
-                        // first iteration
-                        descending_counter = 0;
-                        previous_depth = depth;
-                        continue;
+                    match previous_depth {
+                        None => {
+                            previous_depth = Some(depth);
+                        },
+                        Some(n) => {
+                            if depth > n {
+                                descending_counter += 1;
+                            }
+                            previous_depth = Some(depth);
+                        },
                     }
-                    if depth > previous_depth {
-                        descending_counter += 1;
-                    }
-                    previous_depth = depth;    
                 }
             }
         }
